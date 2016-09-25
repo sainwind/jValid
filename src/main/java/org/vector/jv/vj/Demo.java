@@ -27,12 +27,10 @@ public class Demo {
 		System.out.println("bean json:"+jo.toJSONString());
 		//不带参数的只有名字
 		//带参数的[ 名字;参数; ]的组合形式，虽然可读性比较差，但是方便程序处理,最后一个;可以省略
-		String config = "{name:'required', birth:'required', email:'required;email', age:'required;range;[1,200]' }";
-		
-		JSONObject cfgs = JSON.parseObject(config);
+		String config = "{name:'required', birth:'required', email:'required;email', age:'required;range:1,200' }";
 		
 		//1.开始验证直接属性：
-		if(!VliCore.check(jo, cfgs)){
+		if(!VliCore.check(jo, config)){
 			System.out.println("--------not pass---------");
 		}else {
 			System.out.println("------yes pass-----------");

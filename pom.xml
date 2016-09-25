@@ -7,9 +7,11 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>ehcache</name>
 	
+	<!--
 	<properties>
 		<spring.version>4.3.2.RELEASE</spring.version>
 	</properties>
+	-->
 
 	<dependencies>
 		<!-- servlet-api -->
@@ -29,7 +31,7 @@
 			<groupId>jstl</groupId>
 			<artifactId>jstl</artifactId>
 			<version>1.2</version>
-		</dependency> <!-- jstl -->  <!-- webmvc -->
+		</dependency> <!-- jstl -->  <!-- webmvc --><!--
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
@@ -49,11 +51,6 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
 			<version>${spring.version}</version>
-		</dependency> <!-- 测试1-1 -->
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>1.2.7</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>
@@ -65,19 +62,26 @@
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
 			<version>1</version>
-		</dependency> <!-- inject -->
+		</dependency> --> <!-- inject --> <!-- 
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.3.1</version>
 		</dependency>
+		--> <!-- 测试1-1 -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.7</version>
+		</dependency>
+		
 
 		<!-- hibernate 3.6.10.Final -->
+		<!-- 
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
 			<version>4.3.10.Final</version>
-			<!-- <version>5.2.2.Final</version> -->
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -89,12 +93,15 @@
 			<artifactId>c3p0</artifactId>
 			<version>0.9.5.2</version>
 		</dependency>
+		-->
 		<!-- 主要是缓存页面 -->
+		<!-- 
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache-web</artifactId>
 			<version>2.0.4</version>
 		</dependency>
+		-->
 	</dependencies>
 	
 	<build>

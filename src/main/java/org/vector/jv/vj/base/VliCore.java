@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 public class VliCore {
@@ -20,6 +21,7 @@ public class VliCore {
         return m.matches();  
 	}
 	// 6 length(String val, 6, 6)
+	
 	//100以内含100 length(String val, 0, 100)
 	
 	// 3个以上 length(String val, 3, 0)
@@ -52,7 +54,6 @@ public class VliCore {
         }
 //		if(){
 //			//-?[0-9]+.?[0-9]+
-//			
 //		}
 		
 		//继续范围
@@ -99,8 +100,10 @@ public class VliCore {
 		return false;
 	}
 	
-	public static boolean check(JSONObject obj, JSONObject cfgs){
-		boolean result = true;
+	public static boolean check(Object obj, String config){
+		JSONObject jo = (JSONObject) JSON.toJSON(obj);
+		JSONObject cfgs = JSON.parseObject(config);
+		boolean result = false;
 		
 		//然后根据配置校验
 		Set<String> keySet = cfgs.keySet();
@@ -109,24 +112,62 @@ public class VliCore {
 			String key = keysIt.next();
 			//第一个校验开始
 			String option = cfgs.get(key).toString();
-			Object attObj = obj.get(key);//要求有值的属性，没有属性在json中的时候
+			Object attObj = jo.get(key);//要求有值的属性，没有属性在json中的时候
 			if(attObj == null){
 				return false;
 			}
 			
 			String val = attObj.toString();
 			
-			if(option.contains(";")){
-				String[] options = option.split(";");
+			if(option.contains(";")){//多校验
+				String[] options = option.split(";");//required;length:0,6
+				
 				for (int i = 0; i < options.length; i++) {
-					result = optionChecker(val, options[i]);
+					if(options[i].contains(":")){
+						String[] temp = options[i].split(":");
+						result = optionArgsChecker(val, temp[0], temp[1]);
+					}else{
+						result = optionChecker(val, option);
+					}
+					
+					if(!result){//一旦校验到false就返回
+						return result;
+					}
 				}
-			}else{
-				result = optionChecker(val, option);
+				
+			}else{//单校验
+				if(option.contains(":")){
+					String[] temp = option.split(":");
+					result = optionArgsChecker(val, temp[0], temp[1]);
+				}else{
+					result = optionChecker(val, option);
+				}
+				if(!result){//一旦校验到false就返回
+					return result;
+				}
 			}
 		}
 		
 		return result;
+	}
+
+	private static boolean optionArgsChecker(String val, String option, String args) {
+		boolean result = false;
+		
+		switch (option) {
+		case "length": result=lenCheck(val, args); break;
+		case "number": break;
+		}
+		
+		return result;
+	}
+
+	private static boolean lenCheck(String val, String args) {
+		if(args.contains(",")){
+			String[] arr = args.split(",");
+			return length(val, Integer.parseInt(arr[0]), Integer.parseInt(arr[1]));
+		}
+		return length(val, Integer.parseInt(args), Integer.parseInt(args));
 	}
 
 	private static boolean optionChecker(String val, String option) {
@@ -140,8 +181,6 @@ public class VliCore {
 			case "length": result = email(val);break;
 			case "max": result = email(val);break;
 			case "min": result = email(val);break;
-			default:
-				break;
 		}
 		
 		return result;
