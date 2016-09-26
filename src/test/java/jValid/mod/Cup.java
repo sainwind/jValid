@@ -1,14 +1,24 @@
 package jValid.mod;
 
+import java.sql.Date;
+
 public class Cup {
 	private String name;
 	private String type;
 	private String color;
 	private String brand;
+	private Date createDate;//纯date，只存日期：年月日
 	
 	public Cup() {
 		super();
 	}
+	
+	public Cup(String name, Date createDate) {
+		super();
+		this.name = name;
+		this.createDate = createDate;
+	}
+
 	public Cup(String name) {
 		super();
 		this.name = name;
@@ -54,5 +64,11 @@ public class Cup {
 	}
 	public void setBrand(String brand) {
 		this.brand = brand;
+	}
+	public Date getCreateDate() {
+		return createDate;
+	}
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
 	}
 }

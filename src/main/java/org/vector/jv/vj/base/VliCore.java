@@ -1,6 +1,10 @@
 package org.vector.jv.vj.base;
 
 import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -8,8 +12,13 @@ import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer;
 
 public class VliCore {
+	private static SimpleDateFormat sfm = new SimpleDateFormat("HH:mm:ss");
+	private static SimpleDateFormat yMd = new SimpleDateFormat("yyyy-MM-dd");
+	private static SimpleDateFormat yMdsfm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static SimpleDateFormat yMdsfmm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:sss");
 	private static boolean required(String val){
 		val = val.trim();
 		return !("".equals(val) || val.length()==0);
@@ -115,6 +124,7 @@ public class VliCore {
 	
 	public static boolean check(Object obj, String config){
 		JSONObject jo = (JSONObject) JSON.toJSON(obj);
+		System.out.println("jo => "+jo.toString() );
 		JSONObject cfgs = JSON.parseObject(config);
 		boolean result = false;
 		
@@ -130,7 +140,22 @@ public class VliCore {
 				return false;
 			}
 			
-			String val = attObj.toString();
+			String val = null;
+			if(attObj instanceof Timestamp){
+				System.out.println("--2--");
+				val = yMdsfmm.format(attObj);
+			}else if(attObj instanceof Time){
+				val = sfm.format(attObj);
+				System.out.println("--3--"+val);
+			}else if(attObj instanceof java.sql.Date){
+				val = yMd.format(attObj);
+				System.out.println("--4--");
+			}else if(attObj instanceof Date){
+				val = yMdsfm.format(attObj);
+				System.out.println("--1--");
+			}else{
+				 val = attObj.toString();
+			}
 			
 			if(option.contains(";")){//多校验
 				String[] options = option.split(";");//required;length:0,6
@@ -190,6 +215,10 @@ public class VliCore {
 			case "required": result = required(val);break;
 			case "email": result = email(val);break;
 			case "mobile": result = mobile(val);break;
+			case "date": result = patternDate(val);break;
+			case "time": result = patternHHmmss(val);break;
+			case "datetime": result = patternDatetime(val);break;
+			case "timestamp": result = patternTimestamp(val);break;
 			//TODO to finish
 			case "match": result = email(val);break;
 			case "range": result = email(val);break;
@@ -199,5 +228,28 @@ public class VliCore {
 		}
 		
 		return result;
+	}
+	
+	private static boolean patternTimestamp(String val) {
+		String[] arr = val.split(" ");
+		System.out.println("timestamp -> "+val);
+		return patternDate(arr[0]) && patternHHmmssSSS(arr[1]);
+	}
+
+	private static boolean patternDatetime(String val) {
+		String[] arr = val.split(" ");
+		return patternDate(arr[0]) && patternHHmmss(arr[1]);
+	}
+	
+	private static boolean patternHHmmssSSS(String val) {
+		return pattern(val, "^(([0-1]?[0-9])|(2[0-3])):([0-5][0-9]):([0-5][0-9]):([0-9]{3})$");
+	}
+
+	private static boolean patternHHmmss(String val) {
+		return pattern(val, "^(([0-1]?[0-9])|(2[0-3])):([0-5][0-9]):([0-5][0-9])$");
+	}
+
+	private static boolean patternDate(String val) {
+		return pattern(val, "^((((19|20)\\d{2})-(0?[13-9]|1[012])-(0?[1-9]|[12]\\d|30))|(((19|20)\\d{2})-(0?[13578]|1[02])-31)|(((19|20)\\d{2})-0?2-(0?[1-9]|1\\d|2[0-8]))|((((19|20)([13579][26]|[2468][048]|0[48]))|(2000))-0?2-29))$");
 	}
 }
