@@ -15,17 +15,30 @@ public class VliCore {
 		return !("".equals(val) || val.length()==0);
 	}
 	
-	private static boolean email(String email){
-		Pattern p =  Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");//复杂匹配  
-        Matcher m = p.matcher(email);  
-        return m.matches();  
+	private static boolean email(String val){
+        return pattern(val, "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");  
 	}
+	
+//号码段：
+//	移动：134、135、136、137、138、139、150、151、157(TD)、158、159、187、188
+//　联通：130、131、132、152、155、156、185、186
+//　电信：133、153、180、189、（1349卫通）
+//	"^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$"
+//	前3位属于特殊情况，后8位任意
+	private static boolean mobile(String val){
+		System.out.println("val = "+val);
+		return pattern(val, "^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$");  
+	}
+	
+	private static boolean pattern(String val, String rule){
+		Pattern p =  Pattern.compile(rule);//正则匹配
+		Matcher m = p.matcher(val);
+		return m.matches();
+	}
+	
 	// 6 length(String val, 6, 6)
-	
 	//100以内含100 length(String val, 0, 100)
-	
 	// 3个以上 length(String val, 3, 0)
-	
 	// 4-8 [包含4，8],等价于不包含的[5,9]length(String val, 5, 7)
 	private static boolean length(String val, int len1, int len2){
 		if(len1==len2){
@@ -127,7 +140,7 @@ public class VliCore {
 						String[] temp = options[i].split(":");
 						result = optionArgsChecker(val, temp[0], temp[1]);
 					}else{
-						result = optionChecker(val, option);
+						result = optionChecker(val, options[i]);
 					}
 					
 					if(!result){//一旦校验到false就返回
@@ -155,10 +168,10 @@ public class VliCore {
 		boolean result = false;
 		
 		switch (option) {
-		case "length": result=lenCheck(val, args); break;
-		case "number": break;
+			case "length": result=lenCheck(val, args); break;
+			case "number": break;
+			case "pattern": result = pattern(val, args);break;
 		}
-		
 		return result;
 	}
 
@@ -171,11 +184,13 @@ public class VliCore {
 	}
 
 	private static boolean optionChecker(String val, String option) {
-		boolean result = true;
+		boolean result = false;
 		
 		switch (option) {
 			case "required": result = required(val);break;
 			case "email": result = email(val);break;
+			case "mobile": result = mobile(val);break;
+			//TODO to finish
 			case "match": result = email(val);break;
 			case "range": result = email(val);break;
 			case "length": result = email(val);break;

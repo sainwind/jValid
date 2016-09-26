@@ -87,4 +87,27 @@ public class TestStringCases {
 //		assertEquals(false, VliCore.check(cup3, cfgs));
 	}
 	
+	@Test
+	public void mobile(){
+//		mobile - mobile格式验证
+		Cup cup1 = new Cup("塑料杯", "13895065269");
+		Cup cup2 = new Cup("塑料杯", "14895065236");
+		String cfgs = "{brand:'required;length:11;mobile'}";
+		
+		assertEquals(true, VliCore.check(cup1, cfgs));
+		assertEquals(false, VliCore.check(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
+	}
+	
+	@Test
+	public void pattern(){
+//		mobile - mobile格式验证
+		Cup cup1 = new Cup("塑料杯", "13895065269");
+		Cup cup2 = new Cup("塑料杯", "14895065236");
+		//正则的写法有点特殊：本该是\\的就要写4个\,需要注意
+		String cfgs = "{brand:\"required;length:11;pattern:^((13[0-9])|(15[^4,\\\\D])|(18[0,5-9]))\\\\d{8}$\"}";
+		
+		assertEquals(true, VliCore.check(cup1, cfgs));
+		assertEquals(false, VliCore.check(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
+	}
+	
 }
