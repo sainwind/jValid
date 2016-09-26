@@ -12,14 +12,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.lang.model.element.VariableElement;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 /**
  * int,long ok
- * 浮点，金额都用BigDecimal
+ * 浮点，金额都用BigDecimal,比如金额要小于10万元：money<10 0000
  * double,float不推荐使用
  */
 public class Jvalidator {
@@ -49,65 +47,6 @@ public class Jvalidator {
 		
 		return val.length() <=len1 && len2>=val.length();
 	}
-	
-	// 1, 0, 0  数字验证
-	// 3, 5, 0  数字+最小值验证
-	// 3, 0, 100  数字+最大值验证
-	// 3, 1, 100  数字+最值范围验证
-	private static boolean number(String val, long min, long max){
-		//1.肯定数字验证：
-		Pattern pattern = Pattern.compile("-([0-9]*).([0-9]*)");
-        Matcher match=pattern.matcher(val);
-        if(!match.matches()){
-        	return false;
-        }
-//		if(){
-//			//-?[0-9]+.?[0-9]+
-//		}
-		
-		//继续范围
-		if(min==0 && max!=0){
-			
-		}
-		if(min!=0 && max==0){
-			
-		}
-		if(min!=0 && max!=0){
-			
-		}
-		
-		return true;
-	}
-	
-//	private static boolean min(long val, long min){
-//		return val >= min;
-//	}
-//	private static boolean max(long val, long max){
-//		return val <= max;
-//	}
-	
-//	/**
-//	 * 相等 
-//	 */
-//	private static boolean match(long val, long max){
-//		return val == max;
-//	}
-//	/**
-//	 * 相等 
-//	 */
-//	private static boolean match(String val1, String val2){
-//		if(required(val1) && required(val2)){
-//			return val1.equals(val2);
-//		}
-//		return false;
-//	}
-//	
-//	private static boolean match(BigDecimal val1, BigDecimal val2){
-//		if(required(val1.toString()) && required(val2.toString())){
-//			return val1.compareTo(val2)==0;
-//		}
-//		return false;
-//	}
 	
 	public static boolean check(Object obj, String config){
 		JSONObject jo = (JSONObject) JSON.toJSON(obj);
@@ -139,13 +78,22 @@ public class Jvalidator {
 				 val = attObj.toString();
 			}
 			
-			if(option.contains(";")){//多校验
+			if(option.contains(";")){//多则校验
 				String[] options = option.split(";");//required;length:0,6
 				
 				for (int i = 0; i < options.length; i++) {
 					if(options[i].contains(":")){
 						String[] temp = options[i].split(":");
-						result = optionArgsChecker(val, temp[0], temp[1]);
+						
+						if("compare".equals(temp[0])){
+							//取比较的字段的值：temp[1]=> V,colx
+							String[] args = temp[1].split(",");
+							Object valObj = jo.get(args[1]);//属性名字：比如birth
+							result = optionArgsChecker(val, temp[0], new String[]{args[0], valObj.toString()});//('11:11:23', 'compare', ['V', '12:22:22'])
+						}else{
+							result = optionArgsChecker(val, temp[0], new String[]{temp[1]});
+						}
+						
 					}else{
 						result = optionChecker(val, options[i]);
 					}
@@ -155,10 +103,17 @@ public class Jvalidator {
 					}
 				}
 				
-			}else{//单校验
+			}else{//单则校验
 				if(option.contains(":")){
 					String[] temp = option.split(":");
-					result = optionArgsChecker(val, temp[0], temp[1]);
+					result = optionArgsChecker(val, temp[0], new String[]{temp[1]});
+//					if("compare".equals(option)){
+//						//取比较的字段的值：temp[1]=> : <colx  >colx
+//						Object valObj = jo.get(temp[1].substring(1));//属性名字：比如birth
+//						result = optionArgsChecker(val, temp[0], temp[1].substring(1)+valObj.toString());//这里不知道日期，金额什么的有什么影响？
+//					}else{
+//						result = optionArgsChecker(val, temp[0], temp[1]);
+//					}
 				}else{
 					result = optionChecker(val, option);
 				}
@@ -171,15 +126,53 @@ public class Jvalidator {
 		return result;
 	}
 
-	private static boolean optionArgsChecker(String val, String option, String args) {
+	private static boolean optionArgsChecker(String val, String option, String[] args) {
 		boolean result = false;
 		
 		switch (option) {
-			case "length": result=lenCheck(val, args); break;
+			case "length": result=lenCheck(val, args[0]); break;
 			case "number": break;
-			case "pattern": result = pattern(val, args);break;
-			case "integer": result = integer(val, args);break;//整数
-			case "range": result = range(val, args);break;//整数
+			case "pattern": result = pattern(val, args[0]);break;
+			case "integer": result = integer(val, args[0]);break;//整数
+			case "range": result = range(val, args[0]);break;//数字
+			//相同相等校验：match:2016-09-09,colx
+			case "compare": result = compare(val, args);break;//比较
+		}
+		return result;
+	}
+
+	//1.日期大小 compare:2016-09-09<colx
+	//2.金额大小compare:100<10_0000
+	//3.时间大小 compare:09:10:11<colx
+	//4.日期时间大小 compare:2016-09-09 09:10:11<colx
+	//<  >   <=  >= how?
+	//V  A   W   M
+	private static boolean compare(String val1, String[] args) {
+		//W 右转90度，类似<= M右转90度，类似>=
+		//V 右转90度，类似<  A右转90度，类似>
+		boolean result = false;
+//		System.out.println("val1 = "+val1);
+//		System.out.println("args=> "+args);
+		
+//		钱数字符串比不了，50 > 100,因为5-1=4
+		if(val1.contains(":") || val1.contains("-")){
+			//时间比较ok，没有问题
+			switch (args[0]) {
+				case "M": result = val1.compareTo(args[1])>=0;break;
+				case "W": result = val1.compareTo(args[1])<=0;break;
+				case "V": result = val1.compareTo(args[1])<0;break;
+				case "A": result = val1.compareTo(args[1])>0;break;
+			}
+			
+		}else if(val1.contains(".") || val1.matches("^[1-9]\\d*$")){//金钱数
+			BigDecimal b1 = new BigDecimal(val1);
+			BigDecimal b2 = new BigDecimal(args[1]);
+			switch (args[0]) {
+				case "M": result = b1.compareTo(b2)>=0;break;
+				case "W": result = b1.compareTo(b2)<=0;break;
+				case "V": result = b1.compareTo(b2)<0;break;
+				case "A": result = b1.compareTo(b2)>0;break;
+			}
 		}
 		return result;
 	}
@@ -199,6 +192,12 @@ public class Jvalidator {
 			String vals = args.substring(1+args.indexOf("["), args.indexOf("]"));
 			String[] varr = vals.split(",");
 			//比范围：比如v=3,  varr[0] <= v <= varr[1]
+//			TODO 单边域的支持
+//			if(vals.contains(",")){
+//			}else if(vals.contains("+")){//[3+] 大于等于3的范围
+//			}else if(vals.contains("-")){//[3-] 小于等于3的范围
+//			}
+			
 			//compareTo就是 大于号 的含义 a.compareTo(b) <==> a>b
 			r1 = new BigDecimal(val).compareTo(new BigDecimal(varr[0]))>=0 && new BigDecimal(varr[1]).compareTo(new BigDecimal(val))>=0;
 		}
@@ -299,7 +298,6 @@ public class Jvalidator {
 //	"^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$"
 //	前3位属于特殊情况，后8位任意
 	private static boolean mobile(String val){
-		System.out.println("val = "+val);
 		return pattern(val, "^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$");  
 	}
 	
