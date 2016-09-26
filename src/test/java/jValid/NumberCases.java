@@ -124,6 +124,7 @@ public class NumberCases {
 		assertEquals(false, Jvalidator.check(cup3, cfgs));
 		assertEquals(true, Jvalidator.check(cup4, cfgs));
 	}
+	
 	@Test
 	public void range3(){
 //		离散域+范围域的验证
@@ -132,11 +133,13 @@ public class NumberCases {
 		Cup cup3 = new Cup("8");
 		Cup cup4 = new Cup("3");
 		Cup cup5 = new Cup("50");
+		Cup cup6 = new Cup("150");
 		String cfgs = "{name:'required;range:(-2,-1,0,1,2,3)[10,100]'}";
 		assertEquals(true, Jvalidator.check(cup, cfgs));
 		assertEquals(true, Jvalidator.check(cup2, cfgs));
 		assertEquals(false, Jvalidator.check(cup3, cfgs));
 		assertEquals(true, Jvalidator.check(cup4, cfgs));
 		assertEquals(true, Jvalidator.check(cup5, cfgs));
+		assertEquals(false, Jvalidator.check(cup6, cfgs));
 	}
 }
