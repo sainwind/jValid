@@ -17,8 +17,8 @@ import com.alibaba.fastjson.JSONObject;
 
 /**
  * int,long ok
- * 浮点，金额都用BigDecimal,比如金额要小于10万元：money<10 0000
- * double,float不推荐使用
+ * 浮点，金额都用BigDecimal
+ * double,float不使用
  */
 public class Jvalidator {
 	private static SimpleDateFormat sfm = new SimpleDateFormat("HH:mm:ss");
@@ -30,10 +30,12 @@ public class Jvalidator {
 		return !("".equals(val) || val.length()==0);
 	}
 	
-	// 6 length(String val, 6, 6)
-	//100以内含100 length(String val, 0, 100)
-	// 3个以上 length(String val, 3, 0)
-	// 4-8 [包含4，8],等价于不包含的[5,9]length(String val, 5, 7)
+	/**
+	 * 6 length(String val, 6, 6)
+	 * 100以内含100 length(String val, 0, 100)
+	 * 3个以上 length(String val, 3, 0)
+	 * 4-8 [包含4，8],等价于不包含的[5,9]length(String val, 5, 7)
+	 */
 	private static boolean length(String val, long len1, long len2){
 		if(len1==len2){
 			return val.length()==len1;
@@ -79,10 +81,10 @@ public class Jvalidator {
 			}
 			
 			if(option.contains(";")){//多则校验
-				String[] options = option.split(";");//required;length:0,6
+				String[] options = option.split(";");//required;length
 				
-				for (int i = 0; i < options.length; i++) {
-					if(options[i].contains(":")){
+				for (int i = 0; i < options.length; i++) {//规则循环校验
+					if(options[i].contains(":")){//带参数规则
 						String[] temp = options[i].split(":");
 						
 						if("compare".equals(temp[0])){
@@ -94,7 +96,7 @@ public class Jvalidator {
 							result = optionArgsChecker(val, temp[0], new String[]{temp[1]});
 						}
 						
-					}else{
+					}else{//不带参数规则
 						result = optionChecker(val, options[i]);
 					}
 					
@@ -104,17 +106,10 @@ public class Jvalidator {
 				}
 				
 			}else{//单则校验
-				if(option.contains(":")){
+				if(option.contains(":")){//带参数规则
 					String[] temp = option.split(":");
 					result = optionArgsChecker(val, temp[0], new String[]{temp[1]});
-//					if("compare".equals(option)){
-//						//取比较的字段的值：temp[1]=> : <colx  >colx
-//						Object valObj = jo.get(temp[1].substring(1));//属性名字：比如birth
-//						result = optionArgsChecker(val, temp[0], temp[1].substring(1)+valObj.toString());//这里不知道日期，金额什么的有什么影响？
-//					}else{
-//						result = optionArgsChecker(val, temp[0], temp[1]);
-//					}
-				}else{
+				}else{//不带参数规则
 					result = optionChecker(val, option);
 				}
 				if(!result){//一旦校验到false就返回
@@ -158,20 +153,20 @@ public class Jvalidator {
 		if(val1.contains(":") || val1.contains("-")){
 			//时间比较ok，没有问题
 			switch (args[0]) {
-				case "M": result = val1.compareTo(args[1])>=0;break;
-				case "W": result = val1.compareTo(args[1])<=0;break;
-				case "V": result = val1.compareTo(args[1])<0;break;
-				case "A": result = val1.compareTo(args[1])>0;break;
+				case ">=": result = val1.compareTo(args[1])>=0;break;
+				case "<=": result = val1.compareTo(args[1])<=0;break;
+				case "<": result = val1.compareTo(args[1])<0;break;
+				case ">": result = val1.compareTo(args[1])>0;break;
 			}
 			
 		}else if(val1.contains(".") || val1.matches("^[1-9]\\d*$")){//金钱数
 			BigDecimal b1 = new BigDecimal(val1);
 			BigDecimal b2 = new BigDecimal(args[1]);
 			switch (args[0]) {
-				case "M": result = b1.compareTo(b2)>=0;break;
-				case "W": result = b1.compareTo(b2)<=0;break;
-				case "V": result = b1.compareTo(b2)<0;break;
-				case "A": result = b1.compareTo(b2)>0;break;
+				case ">=": result = b1.compareTo(b2)>=0;break;
+				case "<=": result = b1.compareTo(b2)<=0;break;
+				case "<": result = b1.compareTo(b2)<0;break;
+				case ">": result = b1.compareTo(b2)>0;break;
 			}
 		}
 		return result;
@@ -277,14 +272,14 @@ public class Jvalidator {
 	//全范围整数
 	private static boolean patternInt(String val) {
 		try {
-			System.out.println(""+val);
-			long i = Long.parseLong(val);
+			Long.parseLong(val);//解析看是否是有效整数字符串
 			return true;
 		} catch (NumberFormatException e) {
-			throw new RuntimeException("整数验证失败异常", e);
+			System.out.println("整数校验出错：param="+val);
+			return false;
 		}
 	}
-
+	
 	private static boolean pattern(String val, String rule){
 		Pattern p =  Pattern.compile(rule);//正则匹配
 		Matcher m = p.matcher(val);

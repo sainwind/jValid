@@ -77,9 +77,9 @@ public class StringCases {
 	@Test
 	public void email4(){
 //		email - email格式验证
-		Cup cup1 = new Cup("塑料杯", "s23emaa@162.com");
+//		Cup cup1 = new Cup("塑料杯", "s23emaa@162.com");
 		Cup cup2 = new Cup("塑料杯", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa@162.com");
-		Cup cup3 = new Cup("塑料杯", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa2@162.com");
+//		Cup cup3 = new Cup("塑料杯", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa2@162.com");
 		String cfgs = "{brand:'required;length:0,36;email'}";
 //		String cfgs = "{name:'required', brand:'required;length:0,36;email'}";
 //		assertEquals(true, VliCore.check(cup1, cfgs));

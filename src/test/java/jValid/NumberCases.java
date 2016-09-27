@@ -1,14 +1,12 @@
 package jValid;
 
 import static org.junit.Assert.assertEquals;
+import jValid.mod.Cup;
+import jValid.mod.Product;
 
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Date;
-
-import jValid.mod.Cup;
-import jValid.mod.Product;
 
 import org.junit.Test;
 import org.vector.jv.vj.base.Jvalidator;
@@ -16,6 +14,16 @@ import org.vector.jv.vj.base.Jvalidator;
 public class NumberCases {
 
 	//----------------整数------------------------------------------------
+	@Test
+	public void integerAll(){
+//		任意整数
+		Cup cup1 = new Cup("abc");
+		Cup cup2 = new Cup("123.22");
+		String cfgs = "{name:'required;integer'}";
+		assertEquals(false, Jvalidator.check(cup1, cfgs));
+		assertEquals(false, Jvalidator.check(cup2, cfgs));
+	}
+	
 	@Test
 	public void integerAll1(){
 //		任意整数
@@ -171,13 +179,13 @@ public class NumberCases {
 		Cup cup3 = new Cup("2016-09-19 22:08:35", "2016-09-08 22:07:35");//只存时分秒
 		Cup cup4 = new Cup("120.36", "110.36");//只存时分秒
 		
-		String cfgs1 = "{name:'required', brand:'required;compare:V,name'}";//要求brand<name
-		String cfgs2 = "{name:'required', brand:'required;compare:W,name'}";//要求brand<=name
+		String cfgs1 = "{name:'required', brand:'required;compare:<,name'}";//要求brand<name
+		String cfgs2 = "{name:'required', brand:'required;compare:<=,name'}";//要求brand<=name
 		assertEquals(true, Jvalidator.check(cup1, cfgs1));
 		assertEquals(true, Jvalidator.check(cup2, cfgs2));
 		
-		String cfgs3 = "{name:'required', brand:'required;compare:A,name'}";//要求brand>name
-		String cfgs4 = "{name:'required', brand:'required;compare:M,name'}";//要求brand>=name
+		String cfgs3 = "{name:'required', brand:'required;compare:>,name'}";//要求brand>name
+		String cfgs4 = "{name:'required', brand:'required;compare:>=,name'}";//要求brand>=name
 		assertEquals(false, Jvalidator.check(cup3, cfgs3));
 		assertEquals(false, Jvalidator.check(cup4, cfgs4));
 	}
@@ -192,21 +200,21 @@ public class NumberCases {
 		
 		//时间大小
 		Product p1 = new Product(new Time(System.currentTimeMillis()), new Time((10000+System.currentTimeMillis())));
-		String cfgs1 = "{createTime:'required', updateTime:'required;compare:A,createTime'}";//时间要求updateTime>createTime
+		String cfgs1 = "{createTime:'required', updateTime:'required;compare:>,createTime'}";//时间要求updateTime>createTime
 		assertEquals(true, Jvalidator.check(p1, cfgs1));
 		
 		//日期大小
 		Product p2 = new Product(new java.sql.Date(System.currentTimeMillis()), new java.sql.Date(System.currentTimeMillis()));
-		String cfgs2 = "{createdm:'required', updatedm:'required;compare:M,createdm'}";//时间要求updateDate>=createDate,可以等于
+		String cfgs2 = "{createdm:'required', updatedm:'required;compare:>=,createdm'}";//时间要求updateDate>=createDate,可以等于
 		assertEquals(true, Jvalidator.check(p2, cfgs2));
 		
 		Product p3 = new Product(new Timestamp(System.currentTimeMillis()), new Timestamp((10000+System.currentTimeMillis())));
-		String cfgs3 = "{createdtm:'required', updatedtm:'required;compare:V,createdtm'}";//时间要求brand<name
+		String cfgs3 = "{createdtm:'required', updatedtm:'required;compare:<,createdtm'}";//时间要求brand<name
 		assertEquals(false, Jvalidator.check(p3, cfgs3));
 		
 		Product p4 = new Product(new BigDecimal("100"), new BigDecimal("50"));
 //		Product p4 = new Product(new BigDecimal("100"), new BigDecimal("100"));
-		String cfgs4 = "{amount:'required', price:'required;compare:W,amount'}";//时间要求brand<name
+		String cfgs4 = "{amount:'required', price:'required;compare:<=,amount'}";//时间要求brand<=name
 		assertEquals(true, Jvalidator.check(p4, cfgs4));
 		
 	}

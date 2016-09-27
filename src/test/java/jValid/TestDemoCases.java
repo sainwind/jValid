@@ -34,10 +34,8 @@ public class TestDemoCases {
 	public void name() {
 		String a = "1";
 		String b = "2";
-		String c = "3";
 		//compareTo方法的含义就是大于号
 		System.out.println((new BigDecimal(b).compareTo(new BigDecimal(a))));
-//		new BigDecimal(varr[0]).compareTo(new BigDecimal(val))>0 && new BigDecimal(val).compareTo(new BigDecimal(varr[1]))>0
 	}
 	
 	@Test
