@@ -1,5 +1,5 @@
 #jValid
-##java bean的校验，list<object>的校验，JsonArray的校验
+java bean的校验，list<object>的校验，JsonArray的校验
 配置说明：json对象配置的方式，以{属性名:规则}的格式配置，多个规则之间使用";"分隔如：{属性名:规则1；规则2}
 
 >字符串的规则
