@@ -1,4 +1,4 @@
-package jValid;
+package jValid.beanv;
 
 import static org.junit.Assert.assertEquals;
 import jValid.mod.Cup;
