@@ -18,7 +18,7 @@ public class StringCases {
 //		1.required - 不能为空
 		Cup cup = new Cup();
 		String cfgs = "{name:'required'}";
-		assertEquals(false, ValidatorJ.check(cup, cfgs));
+		assertEquals(false, ValidatorJ.valid(cup, cfgs));
 	}
 	
 	@Test
@@ -26,7 +26,7 @@ public class StringCases {
 //		末尾的;可有可没有
 		Cup cup = new Cup();
 		String cfgs = "{name:'required;'}";
-		assertEquals(false, ValidatorJ.check(cup, cfgs));
+		assertEquals(false, ValidatorJ.valid(cup, cfgs));
 	}
 	
 	@Test
@@ -34,7 +34,7 @@ public class StringCases {
 //		1.required - 不能为空
 		Cup cup = new Cup("塑料杯");
 		String cfgs = "{name:'required'}";
-		assertEquals(true, ValidatorJ.check(cup, cfgs));
+		assertEquals(true, ValidatorJ.valid(cup, cfgs));
 	}
 	
 	@Test
@@ -42,7 +42,7 @@ public class StringCases {
 //		1.required - 不能为空
 		Cup cup = new Cup("塑料杯");
 		String cfgs = "{brand:'required'}";
-		assertEquals(false, ValidatorJ.check(cup, cfgs));
+		assertEquals(false, ValidatorJ.valid(cup, cfgs));
 	}
 	
 //	长度-----------------------
@@ -53,9 +53,9 @@ public class StringCases {
 		Cup cup2 = new Cup("塑料");
 		Cup cup3 = new Cup("塑料杯子");
 		String cfgs = "{name:'required;length:3'}";
-		assertEquals(true, ValidatorJ.check(cup1, cfgs));
-		assertEquals(false, ValidatorJ.check(cup2, cfgs));
-		assertEquals(false, ValidatorJ.check(cup3, cfgs));
+		assertEquals(true, ValidatorJ.valid(cup1, cfgs));
+		assertEquals(false, ValidatorJ.valid(cup2, cfgs));
+		assertEquals(false, ValidatorJ.valid(cup3, cfgs));
 	}
 	
 	@Test
@@ -65,9 +65,9 @@ public class StringCases {
 		Cup cup2 = new Cup("塑料");
 		Cup cup3 = new Cup("塑料杯子");
 		String cfgs = "{name:'required;length:3,0'}";
-		assertEquals(true, ValidatorJ.check(cup1, cfgs));
-		assertEquals(false, ValidatorJ.check(cup2, cfgs));
-		assertEquals(true, ValidatorJ.check(cup3, cfgs));
+		assertEquals(true, ValidatorJ.valid(cup1, cfgs));
+		assertEquals(false, ValidatorJ.valid(cup2, cfgs));
+		assertEquals(true, ValidatorJ.valid(cup3, cfgs));
 	}
 	
 	@Test
@@ -77,9 +77,9 @@ public class StringCases {
 		Cup cup2 = new Cup("塑料杯塑料杯");
 		Cup cup3 = new Cup("塑料杯塑料");
 		String cfgs = "{name:'required;length:0,6'}";
-		assertEquals(false, ValidatorJ.check(cup1, cfgs));//11<=6
-		assertEquals(true, ValidatorJ.check(cup2, cfgs));//6<=6
-		assertEquals(true, ValidatorJ.check(cup3, cfgs));//5<=6
+		assertEquals(false, ValidatorJ.valid(cup1, cfgs));//11<=6
+		assertEquals(true, ValidatorJ.valid(cup2, cfgs));//6<=6
+		assertEquals(true, ValidatorJ.valid(cup3, cfgs));//5<=6
 	}
 	
 	@Test
@@ -90,9 +90,9 @@ public class StringCases {
 //		Cup cup3 = new Cup("塑料杯", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa2@162.com");
 		String cfgs = "{brand:'required;length:0,36;email'}";
 //		String cfgs = "{name:'required', brand:'required;length:0,36;email'}";
-//		assertEquals(true, VliCore.check(cup1, cfgs));
-		assertEquals(false, ValidatorJ.check(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
-//		assertEquals(false, VliCore.check(cup3, cfgs));
+//		assertEquals(true, VliCore.valid(cup1, cfgs));
+		assertEquals(false, ValidatorJ.valid(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
+//		assertEquals(false, VliCore.valid(cup3, cfgs));
 	}
 	
 	@Test
@@ -102,8 +102,8 @@ public class StringCases {
 		Cup cup2 = new Cup("塑料杯", "14895065236");
 		String cfgs = "{brand:'required;length:11;mobile'}";
 		
-		assertEquals(true, ValidatorJ.check(cup1, cfgs));
-		assertEquals(false, ValidatorJ.check(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
+		assertEquals(true, ValidatorJ.valid(cup1, cfgs));
+		assertEquals(false, ValidatorJ.valid(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
 	}
 	
 	@Test
@@ -114,8 +114,8 @@ public class StringCases {
 		//正则的写法有点特殊：本该是\\的就要写4个\,需要注意
 		String cfgs = "{brand:\"required;length:11;pattern:^((13[0-9])|(15[^4,\\\\D])|(18[0,5-9]))\\\\d{8}$\"}";
 		
-		assertEquals(true, ValidatorJ.check(cup1, cfgs));
-		assertEquals(false, ValidatorJ.check(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
+		assertEquals(true, ValidatorJ.valid(cup1, cfgs));
+		assertEquals(false, ValidatorJ.valid(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
 	}
 	
 }

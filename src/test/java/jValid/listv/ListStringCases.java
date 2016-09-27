@@ -25,7 +25,7 @@ public class ListStringCases {
 		cs.add(cup);
 		cs.add(cup2);
 		String cfgs = "{name:'required'}";
-		assertEquals(false, ValidatorJ.check(cs, cfgs));
+		assertEquals(false, ValidatorJ.valid(cs, cfgs));
 	}
 	
 	//JsonArray的验证：
@@ -35,7 +35,7 @@ public class ListStringCases {
 		String css = "[{name:'aa'},{name:'bb'},{name:'cc'},{name:''}]";
 		JSONArray cs = JSONArray.parseArray(css);
 		String cfgs = "{name:'required'}";
-		assertEquals(false, ValidatorJ.check(cs, cfgs));
+		assertEquals(false, ValidatorJ.valid(cs, cfgs));
 	}
 	
 }

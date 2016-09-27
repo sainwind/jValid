@@ -22,16 +22,24 @@ import com.alibaba.fastjson.JSONObject;
  * double,float不使用
  */
 public class ValidatorJ {
-	private static SimpleDateFormat sfm = new SimpleDateFormat("HH:mm:ss");
-	private static SimpleDateFormat yMd = new SimpleDateFormat("yyyy-MM-dd");
-	private static SimpleDateFormat yMdsfm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	private static SimpleDateFormat yMdsfmm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:sss");
+	private SimpleDateFormat sfm = new SimpleDateFormat("HH:mm:ss");
+	private SimpleDateFormat yMd = new SimpleDateFormat("yyyy-MM-dd");
+	private SimpleDateFormat yMdsfm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private SimpleDateFormat yMdsfmm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:sss");
 	
+	public static boolean valid(JSONArray array, String config){
+		return new ValidatorJ().check(array, config);
+	}
+	public static boolean valid(List<Object> list, String config){
+		return new ValidatorJ().check(list, config);
+	}
+	public static boolean valid(Object obj, String config){
+		return new ValidatorJ().check(obj, config);
+	}
 	/**
 	 * 集合验证
 	 */
-	public static boolean check(JSONArray array, String config){
-//		System.out.println("array");
+	public boolean check(JSONArray array, String config){
 		boolean result = false;
 		for(Object obj : array){
 			result = check(obj, config);
@@ -42,8 +50,7 @@ public class ValidatorJ {
 	/**
 	 * 集合验证
 	 */
-	public static boolean check(List<Object> list, String config){
-//		System.out.println("list");
+	public boolean check(List<Object> list, String config){
 		boolean result = false;
 		for(Object obj : list){
 			result = check(obj, config);
@@ -54,8 +61,7 @@ public class ValidatorJ {
 	/**
 	 * bean验证
 	 */
-	public static boolean check(Object obj, String config){
-//		System.out.println("bean");
+	public boolean check(Object obj, String config){
 		JSONObject jo = (JSONObject) JSON.toJSON(obj);
 		JSONObject cfgs = JSON.parseObject(config);
 		boolean result = false;
@@ -86,40 +92,14 @@ public class ValidatorJ {
 			}
 			
 			if(option.contains(";")){//多则校验
-				String[] options = option.split(";");//required;length
-				
-				for (int i = 0; i < options.length; i++) {//规则循环校验
-					if(options[i].contains(":")){//带参数规则
-						String[] temp = options[i].split(":");
-						
-						if("compare".equals(temp[0])){
-							//取比较的字段的值：temp[1]=> V,colx
-							String[] args = temp[1].split(",");
-							Object valObj = jo.get(args[1]);//属性名字：比如birth
-							result = optionArgsChecker(val, temp[0], new String[]{args[0], valObj.toString()});//('11:11:23', 'compare', ['V', '12:22:22'])
-						}else{
-							result = optionArgsChecker(val, temp[0], new String[]{temp[1]});
-						}
-						
-					}else{//不带参数规则
-						result = optionChecker(val, options[i]);
-					}
-					
-					if(!result){//一旦校验到false就返回
-						return result;
-					}
+				String[] rules = option.split(";");//required;length
+				for (int i = 0; i < rules.length; i++) {//规则循环校验
+					result = singleValid(rules[i], val, jo, result);
+					if(!result)return result;//一旦校验到false就返回
 				}
-				
-			}else{//单则校验
-				if(option.contains(":")){//带参数规则
-					String[] temp = option.split(":");
-					result = optionArgsChecker(val, temp[0], new String[]{temp[1]});
-				}else{//不带参数规则
-					result = optionChecker(val, option);
-				}
-				if(!result){//一旦校验到false就返回
-					return result;
-				}
+			}else{
+				result = singleValid(option, val, jo, result);
+				if(!result)return result;//一旦校验到false就返回
 			}
 		}
 		
@@ -127,9 +107,29 @@ public class ValidatorJ {
 	}
 	
 	/**
+	 *单则校验
+	 */
+	private boolean singleValid(String rule, String val, JSONObject jo, boolean result) {
+		if(rule.contains(":")){//带参数规则
+			String[] temp = rule.split(":");
+			
+			if("compare".equals(temp[0])){
+				String[] args = temp[1].split(",");
+				Object valObj = jo.get(args[1]);//属性名字：比如birth
+				result = optionArgsChecker(val, temp[0], new String[]{args[0], valObj.toString()});
+			}else{
+				result = optionArgsChecker(val, temp[0], new String[]{temp[1]});
+			}
+			
+		}else{//不带参数规则
+			result = optionChecker(val, rule);
+		}
+		return result;
+	}
+	/**
 	 * 无参数校验
 	 */
-	private static boolean optionChecker(String val, String option) {
+	private boolean optionChecker(String val, String option) {
 		boolean result = false;
 		
 		switch (option) {
@@ -149,16 +149,14 @@ public class ValidatorJ {
 	/**
 	 * 有参数校验
 	 */
-	private static boolean optionArgsChecker(String val, String option, String[] args) {
+	private boolean optionArgsChecker(String val, String option, String[] args) {
 		boolean result = false;
 		
 		switch (option) {
 			case "length": result=lengthCheck(val, args[0]); break;
-			case "number": break;
 			case "pattern": result = pattern(val, args[0]);break;
 			case "integer": result = integer(val, args[0]);break;//整数
 			case "range": result = range(val, args[0]);break;//数字
-			//相同相等校验：match:2016-09-09,colx
 			case "compare": result = compare(val, args);break;//比较
 		}
 		return result;
@@ -167,7 +165,7 @@ public class ValidatorJ {
 	/**
 	 * 非空校验
 	 */
-	private static boolean required(String val){
+	private boolean required(String val){
 		val = val.trim();
 		return !("".equals(val) || val.length()==0);
 	}
@@ -175,7 +173,7 @@ public class ValidatorJ {
 	/**
 	 * 大小比较，可以比较：日期，金额，时间，日期时间
 	 */
-	private static boolean compare(String val1, String[] args) {
+	private boolean compare(String val1, String[] args) {
 		boolean result = false;
 		if(val1.contains(":") || val1.contains("-")){
 			switch (args[0]) {
@@ -200,7 +198,7 @@ public class ValidatorJ {
 	/**
 	 * 值域判断：值域离散，值域范围，值域离散+值域范围
 	 */
-	private static boolean range(String val, String args) {
+	private boolean range(String val, String args) {
 		boolean r1 = true;
 		boolean f1 = false;
 		
@@ -248,7 +246,7 @@ public class ValidatorJ {
 	 * 正整数
 	 * 0 0+ 0- 0+-[不推荐]
 	 */
-	private static boolean integer(String val, String args) {
+	private boolean integer(String val, String args) {
 		boolean result = false;
 		if(args.length()==1){//1个参数
 			if("0".equals(args)){
@@ -278,7 +276,7 @@ public class ValidatorJ {
 	/**
 	 * 字符串长度校验
 	 */
-	private static boolean lengthCheck(String val, String args) {
+	private boolean lengthCheck(String val, String args) {
 		if(args.contains(",")){
 			String[] arr = args.split(",");
 			return length(val, Long.parseLong(arr[0]), Long.parseLong(arr[1]));
@@ -292,7 +290,7 @@ public class ValidatorJ {
 	 * 3个以上个长度 length(String val, 3, 0)
 	 * 4-8个长度[包含4，8],等价于不包含的[5,9]length(String val, 5, 7)
 	 */
-	private static boolean length(String val, long len1, long len2){
+	private boolean length(String val, long len1, long len2){
 		if(len1==len2){
 			return val.length()==len1;
 		}
@@ -309,7 +307,7 @@ public class ValidatorJ {
 	/**
 	 * 全范围整数
 	 */
-	private static boolean patternInt(String val) {
+	private boolean patternInt(String val) {
 		try {
 			Long.parseLong(val);//解析看是否是有效整数字符串
 			return true;
@@ -322,7 +320,7 @@ public class ValidatorJ {
 	/**
 	 * 正则匹配
 	 */
-	private static boolean pattern(String val, String rule){
+	private boolean pattern(String val, String rule){
 		Pattern p =  Pattern.compile(rule);
 		Matcher m = p.matcher(val);
 		return m.matches();
@@ -332,33 +330,33 @@ public class ValidatorJ {
 //　联通：130、131、132、152、155、156、185、186
 //　电信：133、153、180、189、（1349卫通）
 //	前3位属于特殊情况，后8位任意
-	private static boolean mobile(String val){
+	private boolean mobile(String val){
 		return pattern(val, "^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$");  
 	}
 	
-	private static boolean patternEmail(String val){
+	private boolean patternEmail(String val){
         return pattern(val, "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");  
 	}
 
-	private static boolean patternTimestamp(String val) {
+	private boolean patternTimestamp(String val) {
 		String[] arr = val.split(" ");
 		return patternDate(arr[0]) && patternHHmmssSSS(arr[1]);
 	}
 
-	private static boolean patternDatetime(String val) {
+	private boolean patternDatetime(String val) {
 		String[] arr = val.split(" ");
 		return patternDate(arr[0]) && patternHHmmss(arr[1]);
 	}
 	
-	private static boolean patternHHmmssSSS(String val) {
+	private boolean patternHHmmssSSS(String val) {
 		return pattern(val, "^(([0-1]?[0-9])|(2[0-3])):([0-5][0-9]):([0-5][0-9]):([0-9]{3})$");
 	}
 
-	private static boolean patternHHmmss(String val) {
+	private boolean patternHHmmss(String val) {
 		return pattern(val, "^(([0-1]?[0-9])|(2[0-3])):([0-5][0-9]):([0-5][0-9])$");
 	}
 
-	private static boolean patternDate(String val) {
+	private boolean patternDate(String val) {
 		return pattern(val, "^((((19|20)\\d{2})-(0?[13-9]|1[012])-(0?[1-9]|[12]\\d|30))|(((19|20)\\d{2})-(0?[13578]|1[02])-31)|(((19|20)\\d{2})-0?2-(0?[1-9]|1\\d|2[0-8]))|((((19|20)([13579][26]|[2468][048]|0[48]))|(2000))-0?2-29))$");
 	}
 }
