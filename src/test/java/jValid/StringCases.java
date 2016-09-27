@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import jValid.mod.Cup;
 
 import org.junit.Test;
-import org.vector.jv.vj.base.Jvalidator;
+import org.vector.jv.vj.base.ValidatorJ;
 
 /**
  * bean的字符串属性 测试案例
@@ -18,7 +18,7 @@ public class StringCases {
 //		1.required - 不能为空
 		Cup cup = new Cup();
 		String cfgs = "{name:'required'}";
-		assertEquals(false, Jvalidator.check(cup, cfgs));
+		assertEquals(false, ValidatorJ.check(cup, cfgs));
 	}
 	
 	@Test
@@ -26,7 +26,7 @@ public class StringCases {
 //		1.required - 不能为空
 		Cup cup = new Cup("塑料杯");
 		String cfgs = "{name:'required'}";
-		assertEquals(true, Jvalidator.check(cup, cfgs));
+		assertEquals(true, ValidatorJ.check(cup, cfgs));
 	}
 	
 	@Test
@@ -34,7 +34,7 @@ public class StringCases {
 //		1.required - 不能为空
 		Cup cup = new Cup("塑料杯");
 		String cfgs = "{brand:'required'}";
-		assertEquals(false, Jvalidator.check(cup, cfgs));
+		assertEquals(false, ValidatorJ.check(cup, cfgs));
 	}
 	
 //	长度-----------------------
@@ -45,9 +45,9 @@ public class StringCases {
 		Cup cup2 = new Cup("塑料");
 		Cup cup3 = new Cup("塑料杯子");
 		String cfgs = "{name:'required;length:3'}";
-		assertEquals(true, Jvalidator.check(cup1, cfgs));
-		assertEquals(false, Jvalidator.check(cup2, cfgs));
-		assertEquals(false, Jvalidator.check(cup3, cfgs));
+		assertEquals(true, ValidatorJ.check(cup1, cfgs));
+		assertEquals(false, ValidatorJ.check(cup2, cfgs));
+		assertEquals(false, ValidatorJ.check(cup3, cfgs));
 	}
 	
 	@Test
@@ -57,9 +57,9 @@ public class StringCases {
 		Cup cup2 = new Cup("塑料");
 		Cup cup3 = new Cup("塑料杯子");
 		String cfgs = "{name:'required;length:3,0'}";
-		assertEquals(true, Jvalidator.check(cup1, cfgs));
-		assertEquals(false, Jvalidator.check(cup2, cfgs));
-		assertEquals(true, Jvalidator.check(cup3, cfgs));
+		assertEquals(true, ValidatorJ.check(cup1, cfgs));
+		assertEquals(false, ValidatorJ.check(cup2, cfgs));
+		assertEquals(true, ValidatorJ.check(cup3, cfgs));
 	}
 	
 	@Test
@@ -69,9 +69,9 @@ public class StringCases {
 		Cup cup2 = new Cup("塑料杯塑料杯");
 		Cup cup3 = new Cup("塑料杯塑料");
 		String cfgs = "{name:'required;length:0,6'}";
-		assertEquals(false, Jvalidator.check(cup1, cfgs));//11<=6
-		assertEquals(true, Jvalidator.check(cup2, cfgs));//6<=6
-		assertEquals(true, Jvalidator.check(cup3, cfgs));//5<=6
+		assertEquals(false, ValidatorJ.check(cup1, cfgs));//11<=6
+		assertEquals(true, ValidatorJ.check(cup2, cfgs));//6<=6
+		assertEquals(true, ValidatorJ.check(cup3, cfgs));//5<=6
 	}
 	
 	@Test
@@ -83,7 +83,7 @@ public class StringCases {
 		String cfgs = "{brand:'required;length:0,36;email'}";
 //		String cfgs = "{name:'required', brand:'required;length:0,36;email'}";
 //		assertEquals(true, VliCore.check(cup1, cfgs));
-		assertEquals(false, Jvalidator.check(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
+		assertEquals(false, ValidatorJ.check(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
 //		assertEquals(false, VliCore.check(cup3, cfgs));
 	}
 	
@@ -94,8 +94,8 @@ public class StringCases {
 		Cup cup2 = new Cup("塑料杯", "14895065236");
 		String cfgs = "{brand:'required;length:11;mobile'}";
 		
-		assertEquals(true, Jvalidator.check(cup1, cfgs));
-		assertEquals(false, Jvalidator.check(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
+		assertEquals(true, ValidatorJ.check(cup1, cfgs));
+		assertEquals(false, ValidatorJ.check(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
 	}
 	
 	@Test
@@ -106,8 +106,8 @@ public class StringCases {
 		//正则的写法有点特殊：本该是\\的就要写4个\,需要注意
 		String cfgs = "{brand:\"required;length:11;pattern:^((13[0-9])|(15[^4,\\\\D])|(18[0,5-9]))\\\\d{8}$\"}";
 		
-		assertEquals(true, Jvalidator.check(cup1, cfgs));
-		assertEquals(false, Jvalidator.check(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
+		assertEquals(true, ValidatorJ.check(cup1, cfgs));
+		assertEquals(false, ValidatorJ.check(cup2, cfgs));//每个规则的校验结束都要判断，一旦false就立即返回验证结果
 	}
 	
 }
