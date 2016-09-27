@@ -22,6 +22,14 @@ public class StringCases {
 	}
 	
 	@Test
+	public void required1x(){
+//		末尾的;可有可没有
+		Cup cup = new Cup();
+		String cfgs = "{name:'required;'}";
+		assertEquals(false, ValidatorJ.check(cup, cfgs));
+	}
+	
+	@Test
 	public void required2(){
 //		1.required - 不能为空
 		Cup cup = new Cup("塑料杯");
