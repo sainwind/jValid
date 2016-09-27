@@ -141,6 +141,7 @@ public class ValidatorJ {
 			case "time": result = patternHHmmss(val);break;
 			case "datetime": result = patternDatetime(val);break;
 			case "timestamp": result = patternTimestamp(val);break;
+			default :result = false;
 		}
 		
 		return result;
@@ -158,6 +159,7 @@ public class ValidatorJ {
 			case "integer": result = integer(val, args[0]);break;//整数
 			case "range": result = range(val, args[0]);break;//数字
 			case "compare": result = compare(val, args);break;//比较
+			default :result = false;
 		}
 		return result;
 	}
@@ -181,6 +183,7 @@ public class ValidatorJ {
 				case "<=": result = val1.compareTo(args[1])<=0;break;
 				case "<": result = val1.compareTo(args[1])<0;break;
 				case ">": result = val1.compareTo(args[1])>0;break;
+				default :result = false;
 			}
 		}else if(val1.contains(".") || val1.matches("^[1-9]\\d*$")){//金钱和数
 			BigDecimal b1 = new BigDecimal(val1);
@@ -190,6 +193,7 @@ public class ValidatorJ {
 				case "<=": result = b1.compareTo(b2)<=0;break;
 				case "<": result = b1.compareTo(b2)<0;break;
 				case ">": result = b1.compareTo(b2)>0;break;
+				default :result = false;
 			}
 		}
 		return result;
