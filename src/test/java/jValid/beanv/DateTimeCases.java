@@ -27,6 +27,10 @@ public class DateTimeCases {
 		Cup cup = new Cup("塑料布", new Date(System.currentTimeMillis()));//只存年月日
 		String cfgs = "{name:'required', createDate:'required;date'}";
 		assertEquals(true, ValidatorJ.valid(cup, cfgs));
+		
+		Cup cup2 = new Cup("塑料布", new Date(System.currentTimeMillis()));//只存年月日
+		String cfgs2 = "{name:'required', createDate:'date'}";
+		assertEquals(true, ValidatorJ.valid(cup2, cfgs2));
 	}
 	
 	@Test
