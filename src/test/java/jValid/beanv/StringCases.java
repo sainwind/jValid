@@ -22,6 +22,25 @@ public class StringCases {
 	}
 	
 	@Test
+	public void option(){
+//可选的不否和规则结果
+		Cup cup0 = new Cup("sfmjp163.com");
+		String cfgs = "{name:'email'}";
+		assertEquals(false, ValidatorJ.valid(cup0, cfgs));
+		
+//		可选的
+		Cup cup = new Cup("sfmjp@163.com");
+		assertEquals(true, ValidatorJ.valid(cup, cfgs));
+		
+		//空字符串或者null，应该是pass的，也就是true
+		Cup cup2 = new Cup("");
+		assertEquals(true, ValidatorJ.valid(cup2, cfgs));
+		
+		Cup cup3 = new Cup();
+		assertEquals(true, ValidatorJ.valid(cup3, cfgs));
+	}
+	
+	@Test
 	public void required1x(){
 //		末尾的;可有可没有
 		Cup cup = new Cup();

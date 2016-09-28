@@ -69,16 +69,24 @@ public class ValidatorJ {
 		//然后根据配置校验
 		Set<String> keySet = cfgs.keySet();
 		Iterator<String> keysIt = keySet.iterator();
-		while(keysIt.hasNext()){
+		while(keysIt.hasNext()){//一次是一个属性的校验
+			
 			String key = keysIt.next();
 			//第一个校验开始
 			String option = cfgs.get(key).toString();
 			Object attObj = jo.get(key);//要求有值的属性，没有属性在json中的时候
+			String val = null;
+			
 			if(attObj == null){
-				return false;
+				if(option.startsWith("required")){
+					return false;
+				}else{
+					return true;//可选的项目，但是没有值，直接返回true
+				}
 			}
 			
-			String val = null;
+			//有值，不管是可选，还是必填，都校验即可
+			
 			if(attObj instanceof Timestamp){
 				val = yMdsfmm.format(attObj);
 			}else if(attObj instanceof Time){
@@ -88,18 +96,40 @@ public class ValidatorJ {
 			}else if(attObj instanceof Date){
 				val = yMdsfm.format(attObj);
 			}else{
-				 val = attObj.toString();
+				 val = attObj.toString().trim();//截掉2端空白
 			}
+			System.out.println("val = "+val);
 			
-			if(option.contains(";")){//多则校验
-				String[] rules = option.split(";");//required;length
-				for (int i = 0; i < rules.length; i++) {//规则循环校验
-					result = singleValid(rules[i], val, jo, result);
+			if(option.startsWith("required")){
+				//必须的
+				if(option.contains(";")){//多则校验
+					String[] rules = option.split(";");//required;length
+					for (int i = 0; i < rules.length; i++) {//规则循环校验
+						result = singleValid(rules[i], val, jo, result);
+						if(!result)return result;//一旦校验到false就返回
+					}
+				}else{
+					result = singleValid(option, val, jo, result);
 					if(!result)return result;//一旦校验到false就返回
 				}
+				
 			}else{
-				result = singleValid(option, val, jo, result);
-				if(!result)return result;//一旦校验到false就返回
+				//支持可选字段校验,值不空，有规则就会校验
+				if(val!=null && !"".equals(val)){
+					if(option.contains(";")){//多则校验
+						String[] rules = option.split(";");//required;length
+						for (int i = 0; i < rules.length; i++) {//规则循环校验
+							result = singleValid(rules[i], val, jo, result);
+							if(!result)return result;//一旦校验到false就返回
+						}
+					}else{
+						result = singleValid(option, val, jo, result);
+						if(!result)return result;//一旦校验到false就返回
+					}
+				}else{
+					result = true;//可选的如果没校验就应该是true
+				}
+				//没有值就不校验
 			}
 		}
 		
@@ -107,7 +137,13 @@ public class ValidatorJ {
 	}
 	
 	/**
-	 *单则校验
+	 * 单则校验
+	 * @param rule
+	 * @param val
+	 * @param jo
+	 * @param result
+	 * @param isOpt 是否可选项
+	 * @return
 	 */
 	private boolean singleValid(String rule, String val, JSONObject jo, boolean result) {
 		if(rule.contains(":")){//带参数规则

@@ -8,6 +8,8 @@
 
 * required："{brand:required}"
 
+* 支持可选验证，去掉required规则即可："{brand:email}"
+
 * pattern："{brand:\"required;pattern:\^((13[0-9])|(15[\^4,\\\\\\\\D])|(18[0,5-9]))\\\\\\\\d{8}$\"}"
 
 * length："{brand:required;length:11}"
