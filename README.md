@@ -8,12 +8,13 @@ java bean的校验，list<object>的校验，JsonArray的校验【1个类搞定�
 
 ####使用方法
 
-Cup cup3 = new Cup("0");
-String cfgs = "{name:'required;integer'}";
-if(ValidatorJ.valid(cup, cfgs)){
-   return "验证通过";
+Cup cup = new Cup("0");//bean对象
+String cfgs = "{name:'required;integer'}";//校验规则
+
+if(ValidatorJ.valid(cup, cfgs)){//校验结果就是true or false
+　　return "验证通过";
 }else{ 
-   return "验证不通过";
+　　return "验证不通过";
 }
 
 ####通用规则
