@@ -6,6 +6,16 @@ java bean的校验，list<object>的校验，JsonArray的校验【1个类搞定�
 
 配置说明：json对象配置的方式，以{属性名:规则}的格式配置，多个规则之间使用";"分隔如：{属性名:规则1；规则2}
 
+####使用方法
+
+Cup cup3 = new Cup("0");
+String cfgs = "{name:'required;integer'}";
+if(ValidatorJ.valid(cup, cfgs)){
+   return "验证通过";
+}else{ 
+   return "验证不通过";
+}
+
 ####通用规则
 
 * 必填验证required："{email:required;email}"
