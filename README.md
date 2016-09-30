@@ -82,3 +82,8 @@ if(ValidatorJ.valid(cup, cfgs)){//校验结果就是true or false
 * 大于等于："{createTime:'required', updateTime:'required;compare:>=,createTime'}"
 
 备注：支持字符串的大小，日期，时间，日期时间，数字的大小，金额的大小比较
+
+
+如果用的好，请支持一下，谢谢。有意见尽管提，我可以继续完善。
+<img src="https://git.oschina.net/uploads/qrcode/qrcode_alipay_14749524821220485.png" width="160" height="160" align=center />
+
